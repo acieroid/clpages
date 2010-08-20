@@ -1,5 +1,6 @@
 (defpackage :clpages
-  (:use :cl :cl-fad :cl-ppcre :html-template))
+  (:use :cl :cl-fad :cl-ppcre :html-template)
+  (:export gen-index))
 
 (in-package :clpages)
 
