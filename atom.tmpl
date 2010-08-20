@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+<!-- TODO: id and date -->
+
+  <title><!-- TMPL_VAR blog-title --></title>
+  <link href="<!-- TMPL_VAR blog-url -->"/>
+  <author>
+    <name><!-- TMPL_VAR author --></name>
+    <email><!-- TMPL_VAR email --></email>
+  </author>
+
+  <!-- TMPL_LOOP articles -->
+    <entry>
+      <title xml:lang="fr"><!-- TMPL_VAR title --></title>
+      <author>
+        <name><!-- TMPL_VAR author --></name>
+      </author>
+      <link href="<!-- TMPL_VAR base-url -->/<!-- TMPL_VAR link -->"/>
+
+      <content xml:lang="fr" type="html">
+        <!-- TODO: content -->
+      </content>
+    </entry>
+  <!-- /TMPL_LOOP -->
+
+</feed>
