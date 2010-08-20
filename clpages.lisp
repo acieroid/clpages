@@ -4,7 +4,7 @@
 (in-package :clpages)
 
 (defparameter *directory* #p"/home/quentin/articles/")
-(defparameter *template* #p"/home/quentin/articles/template.tmpl")
+(defparameter *template* (merge-pathnames "template.tmpl"))
 
 (defun is-html (file)
   (scan-to-strings ".html$" (file-namestring file)))
@@ -15,6 +15,9 @@
      (and (is-html file)
           (not (string= "index.html" (file-namestring file)))))
    (list-directory *directory*)))
+
+(defun get-sorted-articles ()
+  (sort (get-articles) #'> :key #'file-write-date))
 
 (defun get-title (article)
   (let ((title
@@ -28,21 +31,23 @@
     (if title title "")))
 
 (defun get-link (article)
-  (file-namestring article)
-  #|(let ((title (get-title article)))
-    (when (string= title "")
-      (error "Missing title in article: ~a" article))
-    (format nil "<a href=\"~a\">~a</a>" (file-namestring article) (get-title article)))|#)
+  (file-namestring article))
 
-(defun get-date ()
-  (multiple-value-bind
-	(second minute hour date month year day-of-week dst-p tz)
-      (get-decoded-time)
-    (declare (ignore day-of-week dst-p))
-    (format nil "~d-~d-~d ~d:~d:~d (GMT~@d)"
-            year date month
-            hour minute second
-            tz)))
+(defmacro format-date (date)
+  `(multiple-value-bind
+         (second minute hour date month year day-of-week dst-p tz)
+       ,date
+     (declare (ignore day-of-week dst-p))
+     (format nil "~2,'0d-~2,'0d-~2,'0d ~2,'0d:~2,'0d:~2,'0d (GMT~@d)"
+             year date month
+             hour minute second
+             tz)))
+
+(defun get-date (article)
+  (format-date (decode-universal-time (file-write-date article))))
+
+(defun actual-date ()
+  (format-date (get-decoded-time)))
 
 (defun gen-index ()
   (with-open-file (stream (merge-pathnames "index.html" *directory*)
@@ -51,9 +56,10 @@
     (fill-and-print-template
      *template*
      (list
-      :date (get-date) :articles
+      :date (actual-date) :articles
       (mapcar (lambda (article)
                 (list :link (get-link article)
-                      :title (get-title article)))
-              (get-articles)))
+                      :title (get-title article)
+                      :date (get-date article)))
+              (get-sorted-articles)))
      :stream stream)))
