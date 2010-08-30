@@ -1,5 +1,5 @@
 (defpackage :clpages
-  (:use :cl :cl-fad :cl-ppcre :html-template)
+  (:use :cl :cl-fad :cl-ppcre :html-template :unescape-html)
   (:export gen))
 
 (in-package :clpages)
@@ -32,7 +32,7 @@
               (multiple-value-bind (ok title)
                   (scan-to-strings "<title>(.*)</title>" line)
                 (when ok
-                  (return (aref title 0))))))))
+                  (return (unescape-html (aref title 0)))))))))
     (if title title "")))
 
 (defun get-link (article)

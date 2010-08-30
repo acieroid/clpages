@@ -3,4 +3,6 @@
   :author "acieroid"
   :license "MIT"
   :depends-on (:cl-fad :cl-ppcre :html-template)
-  :components ((:file "clpages")))
+  :serial t
+  :components ((:file "unescape")
+               (:file "clpages")))
