@@ -7,11 +7,11 @@
 
 (in-package :unescape-html)
 
-(defvar *escape-table* nil)
+(defvar *escape-table* (make-hash-table :test 'equal))
 (defparameter *escaped-scanner* (create-scanner "&[#x]?[\\w\\d]+;"))
 
 (defmacro defchar (name char)
-  `(push (cons ,name ,char) *escape-table*))
+  `(setf (gethash ,name *escape-table*) ,char))
 
 (defchar "euro" #\euro_sign)
 (defchar "nbsp" #\no-break_space)
@@ -32,7 +32,7 @@
     (if (or hexa-p code-p)
         (code-char (parse-integer symbol
                                   :radix (if hexa-p 16 10)))
-        (cdr (assoc symbol *escape-table* :test #'string=)))))
+        (gethash symbol *escape-table*))))
 
 (defun unescape-html (str)
   (regex-replace *escaped-scanner* str
