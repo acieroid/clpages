@@ -7,6 +7,7 @@
 (defparameter *author* "Quentin Stievenart")
 (defparameter *mail* "acieroid -at- awesom -dot- eu")
 (defparameter *base-url* "http://awesom.eu/~acieroid/")
+;; be sure to have a trailing slash for *directory*
 (defparameter *directory* #p"/home/quentin/articles/")
 (defparameter *template* (merge-pathnames "template.tmpl"))
 (defparameter *atom-template* (merge-pathnames "atom.tmpl"))
@@ -77,3 +78,32 @@
                             :direction :output
                             :if-exists :supersede)
       (fill-and-print-template *atom-template* values :stream stream))))
+
+;;; Secondary backend, use an "index.txt" file to get timestamps. The
+;;; index.txt contains lines like "foo.html:1284909626", the first
+;;; field is the file name, the second field is the *unix* timestamp
+;;; (obtained with date +%s).
+(defparameter *index-file* (merge-pathnames "index.txt" *directory*))
+(defvar *articles* (make-hash-table))
+(defconstant unix-to-universal-time 2208988800)
+
+(defun get-articles-index ()
+  (with-open-file (stream *index-file* :direction :input)
+    (loop for line = (read-line stream nil nil) while line
+         for article =
+         (multiple-value-bind (ok datas)
+             (scan-to-strings "^(.+):([0-9]+)$" line)
+           (when ok
+             (let ((title (aref datas 0))
+                   (timestamp (aref datas 1)))
+               (setf (gethash title *articles*)
+                     (+ (parse-integer timestamp) unix-to-universal-time))
+               title)))
+       when article collect article)))
+
+(defun get-timestamp-index (article)
+  (gethash article *articles*))
+
+;;; Uncomment this if you want to use the index.txt behaviour
+;(setf *get-articles-fun* 'get-articles-index)
+;(setf *get-timestamp-fun* 'get-timestamp-index)
