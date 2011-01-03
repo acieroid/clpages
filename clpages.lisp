@@ -4,6 +4,7 @@
 
 (in-package :clpages)
 
+(defparameter *title* "acieroid's pages")
 (defparameter *author* "Quentin Stievenart")
 (defparameter *mail* "acieroid -at- awesom -dot- eu")
 (defparameter *base-url* "http://awesom.eu/~acieroid/")
@@ -63,6 +64,7 @@
 
 (defun gen ()
   (let ((values (list
+                 :page-title *title*
                  :author *author* :mail *mail* :base-url *base-url*
                  :date (actual-date) :articles
                  (mapcar (lambda (article)
