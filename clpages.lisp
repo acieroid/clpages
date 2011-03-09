@@ -7,7 +7,7 @@
 (defparameter *title* "acieroid's pages")
 (defparameter *author* "Quentin Stievenart")
 (defparameter *mail* "acieroid -at- awesom -dot- eu")
-(defparameter *base-url* "http://awesom.eu/~acieroid/")
+(defparameter *base-url* "http://awesom.eu/~acieroid/articles")
 ;; be sure to have a trailing slash for *directory*
 (defparameter *directory* #p"/home/quentin/articles/")
 (defparameter *template* (merge-pathnames "template.tmpl"))
@@ -66,11 +66,18 @@
   (let ((values (list
                  :page-title *title*
                  :author *author* :mail *mail* :base-url *base-url*
-                 :date (actual-date) :articles
+                 :date (actual-date)
+                 :date-rfc3339 (local-time:format-rfc3339-timestring
+                                nil (local-time:now))
+                 :articles
                  (mapcar (lambda (article)
                            (list :link (funcall *get-link-fun* article)
                                  :title (funcall *get-title-fun* article)
-                                 :date (funcall *get-date-fun* article)))
+                                 :date (funcall *get-date-fun* article)
+                                 :date-rfc3339
+                                 (local-time:format-rfc3339-timestring
+                                  nil (local-time:universal-to-timestamp
+                                       (funcall *get-timestamp-fun* article)))))
                          (get-sorted-articles)))))
     (with-open-file (stream (merge-pathnames "index.html" *directory*)
                             :direction :output
@@ -107,5 +114,5 @@
   (gethash article *articles*))
 
 ;;; Uncomment this if you want to use the index.txt behaviour
-;(setf *get-articles-fun* 'get-articles-index)
-;(setf *get-timestamp-fun* 'get-timestamp-index)
+(setf *get-articles-fun* 'get-articles-index)
+(setf *get-timestamp-fun* 'get-timestamp-index)

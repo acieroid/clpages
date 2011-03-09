@@ -4,15 +4,17 @@
 <!-- TODO: id and date -->
 
   <title><!-- TMPL_VAR blog-title --></title>
-  <link href="<!-- TMPL_VAR blog-url -->"/>
+  <link href="<!-- TMPL_VAR base-url -->"/>
   <author>
     <name><!-- TMPL_VAR author --></name>
     <email><!-- TMPL_VAR email --></email>
   </author>
+  <updated><!-- TMPL_VAR date-rfc3339 --></updated>
 
   <!-- TMPL_LOOP articles -->
     <entry>
       <title xml:lang="fr"><!-- TMPL_VAR title --></title>
+      <updated><!-- TMPL_VAR date-rfc3339 --></updated>
       <author>
         <name><!-- TMPL_VAR author --></name>
       </author>
