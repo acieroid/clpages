@@ -15,6 +15,7 @@
 
 (defparameter *get-articles-fun* 'get-articles)
 (defparameter *get-title-fun* 'get-title)
+(defparameter *get-content-fun* 'get-content)
 (defparameter *get-link-fun* 'get-link)
 (defparameter *get-date-fun* 'get-date)
 (defparameter *get-timestamp-fun* 'get-timestamp)
@@ -45,6 +46,19 @@
                 (when ok
                   (return (unescape-html (aref title 0)))))))))
     (if title title "")))
+
+(defun get-content (article)
+  (let (in-body)
+    (with-output-to-string (out)
+      (with-open-file (stream article :direction :input)
+        (loop for line = (read-line stream)
+           while (not (scan-to-strings "</body>" line))
+           when (scan-to-strings "<body(.*)>" line)
+           do (progn (setf in-body t)
+                     (setf line (regex-replace "<body(.*)>" line "")))
+           when in-body
+           do (progn (princ line out)
+                     (terpri out)))))))
 
 (defun get-link (article)
   (file-namestring article))
@@ -77,7 +91,8 @@
                                  :date-rfc3339
                                  (local-time:format-rfc3339-timestring
                                   nil (local-time:universal-to-timestamp
-                                       (funcall *get-timestamp-fun* article)))))
+                                       (funcall *get-timestamp-fun* article)))
+                                 :content (funcall *get-content-fun* article)))
                          (get-sorted-articles)))))
     (with-open-file (stream (merge-pathnames "index.html" *directory*)
                             :direction :output
